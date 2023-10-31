@@ -1,0 +1,14 @@
+{
+  "name": "arraypress/s3-path-resolver",
+  "description": "A robust utility for parsing and validating S3-like paths. The library ensures paths adhere to S3 naming conventions, checks for disallowed protocols, validates file extensions, and supports default bucket configurations. Ideal for applications interfacing with S3-compatible storage solutions.",
+  "type": "library",
+  "license": "GPL-2.0-or-later",
+  "minimum-stability": "stable",
+  "require": {},
+  "autoload": {
+    "psr-4": {
+      "ArrayPress\\Utils\\S3\\": "src/"
+    },
+    "files": ["src/Functions.php"]
+  }
+}
