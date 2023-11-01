@@ -29,14 +29,14 @@ The extension in question needs to have a `composer.json` file, specifically wit
   "repositories": [
     {
       "type": "vcs",
-      "url": "https://github.com/arraypress/s3-providers"
+      "url": "https://github.com/arraypress/s3-path-resolver"
     }
   ]
 }
 ```
 
 Once set up, run `composer install --no-dev`. This should create a new `vendors/` folder
-with `arraypress/s3-providers/` inside.
+with `arraypress/s3-path-resolver/` inside.
 
 ## Leveraging the Object Storage Provider Library
 
@@ -57,7 +57,7 @@ $resolver = new Path_Resolver();
 Setting a default bucket during initialization:
 
 ```php
-$resolver = new Path_Resolver('default-bucket-name');
+$resolver = new Path_Resolver( 'default-bucket-name' );
 ```
 
 ### Path Parsing
@@ -65,14 +65,14 @@ $resolver = new Path_Resolver('default-bucket-name');
 Parsing a straightforward path with a bucket and object:
 
 ```php
-$result = $resolver->parse_path('/my-bucket/my-file.zip');
+$result = $resolver->parse_path( '/my-bucket/my-file.zip' );
 print_r( $result ); // Outputs: ['bucket' => 'my-bucket', 'object' => 'my-file.zip']
 ```
 
 Parsing with just an object and using the default bucket:
 
 ```php
-$result = $resolver->parse_path('my-file.zip');
+$result = $resolver->parse_path( 'my-file.zip' );
 print_r( $result ); // Outputs (assuming default bucket is 'default-bucket-name'): ['bucket' => 'default-bucket-name', 'object' => 'my-file.zip']
 ```
 
@@ -81,8 +81,8 @@ print_r( $result ); // Outputs (assuming default bucket is 'default-bucket-name'
 Validating a path:
 
 ```php
-$isValid = $resolver->is_s3_path('/my-bucket/my-file.zip');
-echo $isValid ? "Valid S3 Path" : "Invalid S3 Path";
+$is_valid = $resolver->is_s3_path( '/my-bucket/my-file.zip' );
+echo $is_valid ? "Valid S3 Path" : "Invalid S3 Path";
 ```
 
 ### Working with Allowed and Disallowed Protocols
@@ -91,7 +91,7 @@ This class has built-in functionality to restrict or allow specific protocols. B
 
 ```php
 $custom_disallowed_protocols = ['custom-protocol://'];
-$resolver = new Path_Resolver('default-bucket-name', [], $custom_disallowed_protocols);
+$resolver = new Path_Resolver( 'default-bucket-name', [], $custom_disallowed_protocols );
 ```
 
 If a path containing one of these protocols is passed to the parser, it will throw an exception.
@@ -101,16 +101,16 @@ If a path containing one of these protocols is passed to the parser, it will thr
 By default, the class checks for the existence of any file extension in the path. However, you can restrict the allowed file extensions during initialization. Here's how:
 
 ```php
-$allowed_extensions = ['zip', 'jpg', 'pdf'];
-$resolver = new Path_Resolver('default-bucket-name', $allowed_extensions);
+$allowed_extensions = [ 'zip', 'jpg', 'pdf' ];
+$resolver = new Path_Resolver( 'default-bucket-name', $allowed_extensions );
 ```
 
 Now, the class will only recognize paths with '.zip', '.jpg', or '.pdf' as valid:
 
 ```php
-$isValid = $resolver->is_s3_path( 'my-file.zip' );  // True
-$isValid = $resolver->is_s3_path( 'my-file.exe' );  // False
-echo $isValid ? "Valid S3 Path" : "Invalid S3 Path";
+$is_valid = $resolver->is_s3_path( 'my-file.zip' );  // True
+$is_valid = $resolver->is_s3_path( 'my-file.exe' );  // False
+echo $is_valid ? "Valid S3 Path" : "Invalid S3 Path";
 ```
 
 If a disallowed extension is passed to the parser, an exception will be thrown.
