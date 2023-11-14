@@ -50,7 +50,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Path_Resolver' ) ) :
 		/**
 		 * @var array List of protocols that are not allowed in S3 paths.
 		 */
-		private array $disallowed_protocols = [ 'https://', 'http://', 'edd-dbfs', 'ftp://' ];
+		private array $disallowed_protocols = [ 'https://', 'http://', 'edd-dbfs', 'ftp://', 's3://' ];
 
 		/**
 		 * Path_Resolver constructor.
@@ -58,13 +58,20 @@ if ( ! class_exists( __NAMESPACE__ . '\\Path_Resolver' ) ) :
 		 * @param string $default_bucket       The default bucket to use if none is provided in the path.
 		 * @param array  $allowed_extensions   List of allowed file extensions.
 		 * @param array  $disallowed_protocols List of protocols that are not allowed in S3 paths.
+		 *
+		 * @throws Exception
 		 */
 		public function __construct( string $default_bucket = '', array $allowed_extensions = [], array $disallowed_protocols = [] ) {
 			$this->default_bucket     = trim( $default_bucket, '/' );
-			$this->allowed_extensions = $allowed_extensions;
+			$this->allowed_extensions = array_unique( $allowed_extensions );
 
 			if ( ! empty( $disallowed_protocols ) ) {
 				$this->disallowed_protocols = $disallowed_protocols;
+			}
+
+			// Validate the default bucket if it's not empty
+			if ( ! empty( $this->default_bucket ) ) {
+				$this->validate_bucket( $this->default_bucket );
 			}
 		}
 
@@ -96,9 +103,12 @@ if ( ! class_exists( __NAMESPACE__ . '\\Path_Resolver' ) ) :
 					throw new Exception( "No bucket provided and no default bucket set." );
 				}
 
+				// Validate the default bucket again to ensure it's still valid
+				$this->validate_bucket( $this->default_bucket );
+
 				return [
-					'bucket' => $this->default_bucket,
-					'object' => $this->sanitize_object_key( $path )
+					'bucket'     => $this->default_bucket,
+					'object_key' => $this->sanitize_object_key( $path )
 				];
 			}
 
@@ -113,37 +123,9 @@ if ( ! class_exists( __NAMESPACE__ . '\\Path_Resolver' ) ) :
 			$object_key = $this->sanitize_object_key( implode( '/', array_slice( $segments, 1 ) ) );
 
 			return [
-				'bucket' => $bucket,
-				'object' => $object_key
+				'bucket'     => $bucket,
+				'object_key' => $object_key
 			];
-		}
-
-		/**
-		 * Validate the provided bucket name based on S3's naming conventions.
-		 *
-		 * @param string $bucket The bucket name to validate.
-		 *
-		 * @throws Exception If the bucket name is invalid.
-		 */
-		private function validate_bucket( string $bucket ): void {
-			if ( strlen( $bucket ) < 3 || strlen( $bucket ) > 63 ) {
-				throw new Exception( "Bucket name length should be between 3 and 63 characters." );
-			}
-
-			if ( ! preg_match( '/^[a-z0-9\-\.]+$/', $bucket ) ) {
-				throw new Exception( "Bucket name contains invalid characters. Only lowercase letters, numbers, hyphens, and dots are allowed." );
-			}
-		}
-
-		/**
-		 * Sanitize the object key to ensure it adheres to S3's naming conventions.
-		 *
-		 * @param string $object_key The object key to sanitize.
-		 *
-		 * @return string The sanitized object key.
-		 */
-		private function sanitize_object_key( string $object_key ): string {
-			return preg_replace( '/[^a-zA-Z0-9\-_\.\/]/', '', $object_key );
 		}
 
 		/**
@@ -183,21 +165,82 @@ if ( ! class_exists( __NAMESPACE__ . '\\Path_Resolver' ) ) :
 		}
 
 		/**
+		 * Sanitize the object key to ensure it adheres to S3's naming conventions.
+		 *
+		 * @param string $object_key The object key to sanitize.
+		 *
+		 * @return string The sanitized object key.
+		 */
+		private function sanitize_object_key( string $object_key ): string {
+			return preg_replace( '/[^a-zA-Z0-9\-_\.\/]/', '', $object_key );
+		}
+
+		/**
+		 * Validate the provided bucket name based on S3's naming conventions.
+		 *
+		 * @param string $bucket The bucket name to validate.
+		 *
+		 * @throws Exception If the bucket name is invalid.
+		 */
+		private function validate_bucket( string $bucket ): void {
+			if ( strlen( $bucket ) < 3 || strlen( $bucket ) > 63 ) {
+				throw new Exception( "Bucket name length should be between 3 and 63 characters." );
+			}
+
+			if ( ! preg_match( '/^[a-z0-9\-\.]+$/', $bucket ) ) {
+				throw new Exception( "Bucket name contains invalid characters. Only lowercase letters, numbers, hyphens, and dots are allowed." );
+			}
+		}
+
+		/**
 		 * Check if the provided path is a valid S3 path.
 		 *
-		 * This method checks if the path does not contain any disallowed protocols
-		 * and if it has a valid file extension.
+		 * This method checks if the path does not contain any disallowed protocols,
+		 * if it has a valid file extension, and if it contains or defaults to a valid bucket.
 		 *
 		 * @param string $path The path to check.
 		 *
 		 * @return bool True if the path is a valid S3 path, false otherwise.
 		 */
-		public function is_s3_path( string $path ): bool {
+		public function is_valid_path( string $path ): bool {
+			// Check for disallowed protocol.
 			if ( $this->has_disallowed_protocol( $path ) ) {
 				return false;
 			}
 
-			return $this->has_valid_file_extension( $path );
+			// Check for valid file extension.
+			if ( ! $this->has_valid_file_extension( $path ) ) {
+				return false;
+			}
+
+			// Check if path starts with a '/' (indicating it includes a bucket name).
+			if ( $path[0] === '/' ) {
+				// Extract the bucket name from the path.
+				$bucket = explode( '/', ltrim( $path, '/' ) )[0];
+				try {
+					// Validate the extracted bucket name.
+					$this->validate_bucket( $bucket );
+				} catch ( Exception $e ) {
+					// If validation fails, return false.
+					return false;
+				}
+			} else {
+				// If the path doesn't start with '/', check the default bucket.
+				if ( empty( $this->default_bucket ) ) {
+					return false;
+				}
+
+				// Validate the default bucket.
+				try {
+					$this->validate_bucket( $this->default_bucket );
+				} catch ( Exception $e ) {
+					// If validation fails, return false.
+					return false;
+				}
+			}
+
+			// If all checks pass, return true.
+			return true;
 		}
 
 	}

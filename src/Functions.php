@@ -53,22 +53,23 @@ if ( ! function_exists( 'parse_path' ) ) {
 	}
 }
 
-if ( ! function_exists( 'is_s3_path' ) ) {
+if ( ! function_exists( 'is_valid_path' ) ) {
 	/**
 	 * Determines if the provided path is a valid S3 path.
 	 *
 	 * @param string        $path                 The path to check.
 	 * @param array         $allowed_extensions   List of allowed file extensions.
+	 * @param string        $default_bucket       The default bucket to use if none is provided in the path.
 	 * @param array         $disallowed_protocols List of protocols that are not allowed in S3 paths.
 	 * @param callable|null $error_callback       Callback function for error handling.
 	 *
 	 *
 	 * @return bool True if the path is a valid S3 path, false otherwise.
 	 */
-	function is_s3_path( string $path, array $allowed_extensions = [], array $disallowed_protocols = [], ?callable $error_callback = null ): bool {
-		$resolver = new Path_Resolver( '', $allowed_extensions, $disallowed_protocols );
+	function is_valid_path( string $path, string $default_bucket = '', array $allowed_extensions = [], array $disallowed_protocols = [], ?callable $error_callback = null ): bool {
+		$resolver = new Path_Resolver( $default_bucket, $allowed_extensions, $disallowed_protocols );
 		try {
-			return $resolver->is_s3_path( $path );
+			return $resolver->is_valid_path( $path );
 		} catch ( Exception $e ) {
 			if ( is_callable( $error_callback ) ) {
 				call_user_func( $error_callback, $e );

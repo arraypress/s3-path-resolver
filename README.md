@@ -81,7 +81,7 @@ print_r( $result ); // Outputs (assuming default bucket is 'default-bucket-name'
 Validating a path:
 
 ```php
-$is_valid = $resolver->is_s3_path( '/my-bucket/my-file.zip' );
+$is_valid = $resolver->is_valid_path( '/my-bucket/my-file.zip' );
 echo $is_valid ? "Valid S3 Path" : "Invalid S3 Path";
 ```
 
@@ -108,8 +108,8 @@ $resolver = new Path_Resolver( 'default-bucket-name', $allowed_extensions );
 Now, the class will only recognize paths with '.zip', '.jpg', or '.pdf' as valid:
 
 ```php
-$is_valid = $resolver->is_s3_path( 'my-file.zip' );  // True
-$is_valid = $resolver->is_s3_path( 'my-file.exe' );  // False
+$is_valid = $resolver->is_valid_path( 'my-file.zip' );  // True
+$is_valid = $resolver->is_valid_path( 'my-file.exe' );  // False
 echo $is_valid ? "Valid S3 Path" : "Invalid S3 Path";
 ```
 
@@ -133,7 +133,7 @@ $result = parse_path( 'my-bucket/my-file.zip', 'default-bucket-name', ['zip', 'j
 This function determines if the given path is a valid S3 path based on allowed extensions and disallowed protocols.
 
 ```php
-$isValid = is_s3_path( 'my-file.zip', ['zip', 'jpg'], ['ftp://'] ) ;
+$isValid = is_valid_path( 'my-file.zip', 'default-bucket', ['zip', 'jpg'], ['ftp://'] ) ;
 // Result: true
 ```
 
