@@ -37,6 +37,7 @@ if ( ! function_exists( 'parse_path' ) ) {
 	 * @param callable|null $error_callback       Callback function for error handling.
 	 *
 	 * @return array|false An associative array with 'bucket' and 'object' keys or false on failure.
+	 * @throws Exception
 	 */
 	function parse_path( string $path, string $default_bucket = '', array $allowed_extensions = [], array $disallowed_protocols = [], ?callable $error_callback = null ) {
 		$resolver = new Path_Resolver( $default_bucket, $allowed_extensions, $disallowed_protocols );
@@ -65,6 +66,7 @@ if ( ! function_exists( 'is_valid_path' ) ) {
 	 *
 	 *
 	 * @return bool True if the path is a valid S3 path, false otherwise.
+	 * @throws Exception
 	 */
 	function is_valid_path( string $path, string $default_bucket = '', array $allowed_extensions = [], array $disallowed_protocols = [], ?callable $error_callback = null ): bool {
 		$resolver = new Path_Resolver( $default_bucket, $allowed_extensions, $disallowed_protocols );
