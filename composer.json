@@ -9,6 +9,9 @@
     "psr-4": {
       "ArrayPress\\Utils\\S3\\": "src/"
     },
-    "files": ["src/Functions.php"]
+    "files": [
+      "src/Functions.php",
+      "src/Helper.php"
+    ]
   }
 }

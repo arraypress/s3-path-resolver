@@ -33,13 +33,13 @@ if ( ! function_exists( 'parse_path' ) ) {
 	 * @param string        $path                 The S3 path.
 	 * @param string        $default_bucket       The default bucket to use if none is provided in the path.
 	 * @param array         $allowed_extensions   List of allowed file extensions.
-	 * @param array         $disallowed_protocols List of protocols that are not allowed in S3 paths.
 	 * @param callable|null $error_callback       Callback function for error handling.
+	 * @param array         $disallowed_protocols List of protocols that are not allowed in S3 paths.
 	 *
 	 * @return array|false An associative array with 'bucket' and 'object' keys or false on failure.
 	 * @throws Exception
 	 */
-	function parse_path( string $path, string $default_bucket = '', array $allowed_extensions = [], array $disallowed_protocols = [], ?callable $error_callback = null ) {
+	function parse_path( string $path, string $default_bucket = '', array $allowed_extensions = [], ?callable $error_callback = null, array $disallowed_protocols = [] ) {
 		$resolver = new Path_Resolver( $default_bucket, $allowed_extensions, $disallowed_protocols );
 		try {
 			return $resolver->parse_path( $path );
@@ -59,16 +59,15 @@ if ( ! function_exists( 'is_valid_path' ) ) {
 	 * Determines if the provided path is a valid S3 path.
 	 *
 	 * @param string        $path                 The path to check.
-	 * @param array         $allowed_extensions   List of allowed file extensions.
 	 * @param string        $default_bucket       The default bucket to use if none is provided in the path.
-	 * @param array         $disallowed_protocols List of protocols that are not allowed in S3 paths.
+	 * @param array         $allowed_extensions   List of allowed file extensions.
 	 * @param callable|null $error_callback       Callback function for error handling.
-	 *
+	 * @param array         $disallowed_protocols List of protocols that are not allowed in S3 paths.
 	 *
 	 * @return bool True if the path is a valid S3 path, false otherwise.
 	 * @throws Exception
 	 */
-	function is_valid_path( string $path, string $default_bucket = '', array $allowed_extensions = [], array $disallowed_protocols = [], ?callable $error_callback = null ): bool {
+	function is_valid_path( string $path, string $default_bucket = '', array $allowed_extensions = [], ?callable $error_callback = null, array $disallowed_protocols = [] ): bool {
 		$resolver = new Path_Resolver( $default_bucket, $allowed_extensions, $disallowed_protocols );
 		try {
 			return $resolver->is_valid_path( $path );
