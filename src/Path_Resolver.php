@@ -27,6 +27,7 @@
 namespace ArrayPress\Utils\S3;
 
 use Exception;
+use InvalidArgumentException;
 
 /**
  * Manages S3 providers and offers utilities for interacting with them and their regions.
@@ -59,7 +60,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Path_Resolver' ) ) :
 		 * @param array  $allowed_extensions   List of allowed file extensions.
 		 * @param array  $disallowed_protocols List of protocols that are not allowed in S3 paths.
 		 *
-		 * @throws Exception
+		 * @throws InvalidArgumentException Thrown if the provided default bucket name is invalid.
 		 */
 		public function __construct( string $default_bucket = '', array $allowed_extensions = [], array $disallowed_protocols = [] ) {
 			$this->default_bucket     = trim( $default_bucket, '/' );
@@ -81,7 +82,9 @@ if ( ! class_exists( __NAMESPACE__ . '\\Path_Resolver' ) ) :
 		 * @param string $path The S3 path.
 		 *
 		 * @return array An associative array with 'bucket' and 'object' keys.
-		 * @throws Exception If the path is invalid.
+		 * @throws Exception If the path is empty, contains a disallowed protocol,
+		 *                   has an invalid file extension, or does not contain a valid object key.
+		 * @throws InvalidArgumentException If the bucket name is invalid.
 		 */
 		public function parse_path( string $path ): array {
 			$path = trim( $path );
