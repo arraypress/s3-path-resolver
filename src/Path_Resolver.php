@@ -71,7 +71,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Path_Resolver' ) ) :
 
 			// Validate the default bucket if it's not empty
 			if ( ! empty( $this->default_bucket ) ) {
-				$this->validate_bucket( $this->default_bucket );
+				Validate::bucket( $this->default_bucket );
 			}
 		}
 
@@ -104,11 +104,11 @@ if ( ! class_exists( __NAMESPACE__ . '\\Path_Resolver' ) ) :
 				}
 
 				// Validate the default bucket again to ensure it's still valid
-				$this->validate_bucket( $this->default_bucket );
+				Validate::bucket( $this->default_bucket );
 
 				return [
 					'bucket'     => $this->default_bucket,
-					'object_key' => $this->sanitize_object_key( $path )
+					'object_key' => Sanitize::object_key( $path )
 				];
 			}
 
@@ -118,9 +118,9 @@ if ( ! class_exists( __NAMESPACE__ . '\\Path_Resolver' ) ) :
 			}
 
 			$bucket = $segments[0];
-			$this->validate_bucket( $bucket );
+			Validate::bucket( $bucket );
 
-			$object_key = $this->sanitize_object_key( implode( '/', array_slice( $segments, 1 ) ) );
+			$object_key = Sanitize::object_key( implode( '/', array_slice( $segments, 1 ) ) );
 
 			return [
 				'bucket'     => $bucket,
@@ -165,34 +165,6 @@ if ( ! class_exists( __NAMESPACE__ . '\\Path_Resolver' ) ) :
 		}
 
 		/**
-		 * Sanitize the object key to ensure it adheres to S3's naming conventions.
-		 *
-		 * @param string $object_key The object key to sanitize.
-		 *
-		 * @return string The sanitized object key.
-		 */
-		private function sanitize_object_key( string $object_key ): string {
-			return preg_replace( '/[^a-zA-Z0-9\-_\.\/]/', '', $object_key );
-		}
-
-		/**
-		 * Validate the provided bucket name based on S3's naming conventions.
-		 *
-		 * @param string $bucket The bucket name to validate.
-		 *
-		 * @throws Exception If the bucket name is invalid.
-		 */
-		private function validate_bucket( string $bucket ): void {
-			if ( strlen( $bucket ) < 3 || strlen( $bucket ) > 63 ) {
-				throw new Exception( "Bucket name length should be between 3 and 63 characters." );
-			}
-
-			if ( ! preg_match( '/^[a-z0-9\-\.]+$/', $bucket ) ) {
-				throw new Exception( "Bucket name contains invalid characters. Only lowercase letters, numbers, hyphens, and dots are allowed." );
-			}
-		}
-
-		/**
 		 * Check if the provided path is a valid S3 path.
 		 *
 		 * This method checks if the path does not contain any disallowed protocols,
@@ -219,7 +191,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Path_Resolver' ) ) :
 				$bucket = explode( '/', ltrim( $path, '/' ) )[0];
 				try {
 					// Validate the extracted bucket name.
-					$this->validate_bucket( $bucket );
+					Validate::bucket( $bucket );
 				} catch ( Exception $e ) {
 					// If validation fails, return false.
 					return false;
@@ -232,7 +204,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Path_Resolver' ) ) :
 
 				// Validate the default bucket.
 				try {
-					$this->validate_bucket( $this->default_bucket );
+					Validate::bucket( $this->default_bucket );
 				} catch ( Exception $e ) {
 					// If validation fails, return false.
 					return false;

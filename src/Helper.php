@@ -38,7 +38,7 @@ namespace ArrayPress\Utils\S3;
 
 use Exception;
 
-if ( ! function_exists( 'is_edd_download_file_s3_url' ) ) {
+if ( ! function_exists( 'is_edd_file_valid_path' ) ) {
 	/**
 	 * Check if an Easy Digital Downloads (EDD) download file is stored on an S3 provider.
 	 *
@@ -55,7 +55,7 @@ if ( ! function_exists( 'is_edd_download_file_s3_url' ) ) {
 	 * @return bool True if the file is hosted on an S3 provider, false otherwise.
 	 * @throws Exception
 	 */
-	function is_edd_download_file_s3_url( int $download_id = 0, int $file_id = null, string $default_bucket = 'default_bucket', array $allowed_extensions = [], ?callable $error_callback = null ): bool {
+	function is_edd_file_valid_path( int $download_id = 0, int $file_id = null, string $default_bucket = 'default_bucket', array $allowed_extensions = [], ?callable $error_callback = null ): bool {
 
 		// Exit early if the download ID is not provided or EDD functions are not available.
 		if ( empty( $download_id ) || ! function_exists( 'edd_get_download_files' ) ) {
@@ -79,12 +79,12 @@ if ( ! function_exists( 'is_edd_download_file_s3_url' ) ) {
 		}
 
 		// Apply filters and return the result.
-		return apply_filters( 'arraypress/s3/is_edd_file_s3_url', $ret, $download_id, $file_id, $default_bucket, $allowed_extensions, $error_callback );
+		return apply_filters( 'is_edd_file_valid_path', $ret, $download_id, $file_id, $default_bucket, $allowed_extensions, $error_callback );
 	}
 
 }
 
-if ( ! function_exists( 'is_wc_download_file_s3_url' ) ) {
+if ( ! function_exists( 'is_wc_file_valid_path' ) ) {
 	/**
 	 * Check if a WooCommerce product download file is stored on an Amazon S3 server.
 	 *
@@ -101,7 +101,7 @@ if ( ! function_exists( 'is_wc_download_file_s3_url' ) ) {
 	 * @return bool True if the file is hosted on Amazon S3, false otherwise.
 	 * @throws Exception
 	 */
-	function is_wc_download_file_s3_url( int $product_id = 0, string $download_id = null, string $default_bucket = 'default_bucket', array $allowed_extensions = [], ?callable $error_callback = null ): bool {
+	function is_wc_file_valid_path( int $product_id = 0, string $download_id = null, string $default_bucket = 'default_bucket', array $allowed_extensions = [], ?callable $error_callback = null ): bool {
 
 		// Exit early if the product ID is not provided or WooCommerce functions are not available.
 		if ( empty( $product_id ) || ! function_exists( 'wc_get_product' ) ) {
@@ -135,6 +135,6 @@ if ( ! function_exists( 'is_wc_download_file_s3_url' ) ) {
 		}
 
 		// Apply filters and return the result.
-		return apply_filters( 'arraypress/s3/is_wc_download_file_s3_url', $ret, $product_id, $download_id, $default_bucket, $allowed_extensions, $error_callback );
+		return apply_filters( 'is_wc_file_valid_path', $ret, $product_id, $download_id, $default_bucket, $allowed_extensions, $error_callback );
 	}
 }

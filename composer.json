@@ -4,7 +4,9 @@
   "type": "library",
   "license": "GPL-2.0-or-later",
   "minimum-stability": "stable",
-  "require": {},
+  "require": {
+    "arraypress/s3-sanitization": "*"
+  },
   "autoload": {
     "psr-4": {
       "ArrayPress\\Utils\\S3\\": "src/"
@@ -13,5 +15,11 @@
       "src/Functions.php",
       "src/Helper.php"
     ]
-  }
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/arraypress/s3-sanitization"
+    }
+  ]
 }
