@@ -25,6 +25,7 @@
 namespace ArrayPress\Utils\S3;
 
 use Exception;
+use InvalidArgumentException;
 
 if ( ! function_exists( 'parse_path' ) ) {
 	/**

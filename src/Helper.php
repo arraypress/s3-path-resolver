@@ -37,6 +37,7 @@
 namespace ArrayPress\Utils\S3;
 
 use Exception;
+use InvalidArgumentException;
 
 if ( ! function_exists( 'is_edd_file_valid_path' ) ) {
 	/**
