@@ -30,16 +30,16 @@
  * @package     ArrayPress/s3-path-resolver
  * @copyright   Copyright (c) 2023, ArrayPress Limited
  * @license     GPL2+
- * @since       1.0.0
+ * @version       1.0.0
  * @author      David Sherlock
  */
 
-namespace ArrayPress\Utils\S3;
+namespace ArrayPress\S3;
 
 use Exception;
 use InvalidArgumentException;
 
-if ( ! function_exists( 'is_edd_file_valid_path' ) ) {
+if ( ! function_exists( 'is_edd_file_s3_path' ) ) {
 	/**
 	 * Check if an Easy Digital Downloads (EDD) download file is stored on an S3 provider.
 	 *
@@ -56,7 +56,7 @@ if ( ! function_exists( 'is_edd_file_valid_path' ) ) {
 	 * @return bool True if the file is hosted on an S3 provider, false otherwise.
 	 * @throws Exception
 	 */
-	function is_edd_file_valid_path( int $download_id = 0, int $file_id = null, string $default_bucket = 'default_bucket', array $allowed_extensions = [], ?callable $error_callback = null ): bool {
+	function is_edd_file_s3_path( int $download_id, int $file_id, string $default_bucket = 'default_bucket', array $allowed_extensions = [], ?callable $error_callback = null ): bool {
 
 		// Exit early if the download ID is not provided or EDD functions are not available.
 		if ( empty( $download_id ) || ! function_exists( 'edd_get_download_files' ) ) {
@@ -67,75 +67,20 @@ if ( ! function_exists( 'is_edd_file_valid_path' ) ) {
 		$download_files = \edd_get_download_files( $download_id );
 
 		// Initialize the return value.
-		$ret = false;
+		$retval = false;
 
 		// Check if the specified file ID is provided and valid.
-		if ( $file_id !== null && isset( $download_files[ $file_id ] ) ) {
+		if ( isset( $download_files[ $file_id ] ) ) {
 			$file_url = trim( $download_files[ $file_id ]['file'] );
 
 			// Validate whether the file URL is an S3 path.
-			if ( ! empty( $file_url ) && is_valid_path( $file_url, $default_bucket, $allowed_extensions, $error_callback ) ) {
-				$ret = true;
+			if ( ! empty( $file_url ) && isValidPath( $file_url, $default_bucket, $allowed_extensions, $error_callback ) ) {
+				$retval = true;
 			}
 		}
 
-		// Apply filters and return the result.
-		return apply_filters( 'is_edd_file_valid_path', $ret, $download_id, $file_id, $default_bucket, $allowed_extensions, $error_callback );
+		// Return the result
+		return $retval;
 	}
 
-}
-
-if ( ! function_exists( 'is_wc_file_valid_path' ) ) {
-	/**
-	 * Check if a WooCommerce product download file is stored on an Amazon S3 server.
-	 *
-	 * This function verifies whether a file associated with a WooCommerce product's downloadable
-	 * files, identified by product ID and an optional download ID, is hosted on Amazon S3.
-	 * It checks the file's URL to ascertain if it conforms to an S3 URL pattern.
-	 *
-	 * @param int           $product_id         The ID of the WooCommerce product to check.
-	 * @param string|null   $download_id        The ID of the specific download within the product (optional).
-	 * @param string        $default_bucket     Default S3 bucket name to use for URL validation.
-	 * @param array         $allowed_extensions List of permissible file extensions for downloads.
-	 * @param callable|null $error_callback     Function to call for error handling (optional).
-	 *
-	 * @return bool True if the file is hosted on Amazon S3, false otherwise.
-	 * @throws Exception
-	 */
-	function is_wc_file_valid_path( int $product_id = 0, string $download_id = null, string $default_bucket = 'default_bucket', array $allowed_extensions = [], ?callable $error_callback = null ): bool {
-
-		// Exit early if the product ID is not provided or WooCommerce functions are not available.
-		if ( empty( $product_id ) || ! function_exists( 'wc_get_product' ) ) {
-			return false;
-		}
-
-		// Retrieve the specified WooCommerce product.
-		$product = \wc_get_product( $product_id );
-
-		// Initialize the return value.
-		$ret = false;
-
-		// Ensure the product is downloadable and has downloadable files.
-		if ( ! empty( $product ) && $product->is_downloadable() ) {
-			$downloads = $product->get_downloads();
-
-			// Exit if there are no downloadable files for the product.
-			if ( empty( $downloads ) ) {
-				return false;
-			}
-
-			// If a specific download ID is provided, use it to get the file URL.
-			if ( $download_id !== null && isset( $downloads[ $download_id ] ) ) {
-				$file_url = trim( $downloads[ $download_id ]->get_file() );
-			}
-
-			// Validate whether the file URL corresponds to an S3 path.
-			if ( ! empty( $file_url ) && is_valid_path( $file_url, $default_bucket, $allowed_extensions, $error_callback ) ) {
-				$ret = true;
-			}
-		}
-
-		// Apply filters and return the result.
-		return apply_filters( 'is_wc_file_valid_path', $ret, $product_id, $download_id, $default_bucket, $allowed_extensions, $error_callback );
-	}
 }

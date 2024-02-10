@@ -1,25 +1,28 @@
 {
   "name": "arraypress/s3-path-resolver",
   "description": "A robust utility for parsing and validating S3-like paths. The library ensures paths adhere to S3 naming conventions, checks for disallowed protocols, validates file extensions, and supports default bucket configurations. Ideal for applications interfacing with S3-compatible storage solutions.",
+  "homepage": "https://github.com/arraypress/s3-path-resolver/",
   "type": "library",
   "license": "GPL-2.0-or-later",
+  "authors": [
+    {
+      "name": "David Sherlock",
+      "homepage": "https://arraypress.com/"
+    }
+  ],
   "minimum-stability": "stable",
   "require": {
-    "arraypress/s3-sanitization": "*"
+    "php": "^7.4 || ^8.0",
+    "arraypress/s3-utilities": "*"
   },
   "autoload": {
     "psr-4": {
-      "ArrayPress\\Utils\\S3\\": "src/"
+      "ArrayPress\\S3\\": "src/"
     },
     "files": [
       "src/Functions.php",
-      "src/Helper.php"
+      "helpers/EDD.php",
+      "helpers/WC.php"
     ]
-  },
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/arraypress/s3-sanitization"
-    }
-  ]
+  }
 }

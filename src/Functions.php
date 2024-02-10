@@ -15,38 +15,40 @@
  *
  * Note: These functions check for the existence of the Path_Resolver class to prevent redefinition.
  *
- * @package     ArrayPress/s3-path-resolver
- * @copyright   Copyright (c) 2023, ArrayPress Limited
- * @license     GPL2+
- * @since       1.0.0
- * @author      David Sherlock
+ * @package       ArrayPress/s3-path-resolver
+ * @copyright     Copyright (c) 2023, ArrayPress Limited
+ * @license       GPL2+
+ * @version       1.0.0
+ * @author        David Sherlock
  */
 
-namespace ArrayPress\Utils\S3;
+declare( strict_types=1 );
+
+namespace ArrayPress\S3;
 
 use Exception;
-use InvalidArgumentException;
 
-if ( ! function_exists( 'parse_path' ) ) {
+if ( ! function_exists( 'parsePath' ) ) {
 	/**
 	 * Parse the provided path to extract the bucket and object key.
 	 *
-	 * @param string        $path                 The S3 path.
-	 * @param string        $default_bucket       The default bucket to use if none is provided in the path.
-	 * @param array         $allowed_extensions   List of allowed file extensions.
-	 * @param callable|null $error_callback       Callback function for error handling.
-	 * @param array         $disallowed_protocols List of protocols that are not allowed in S3 paths.
+	 * @param string        $path                The S3 path.
+	 * @param string        $defaultBucket       The default bucket to use if none is provided in the path.
+	 * @param bool          $asObject            Whether to return the result as an object. Default false.
+	 * @param array         $allowedExtensions   List of allowed file extensions.
+	 * @param callable|null $errorCallback       Callback function for error handling.
+	 * @param array         $disallowedProtocols List of protocols that are not allowed in S3 paths.
 	 *
-	 * @return array|false An associative array with 'bucket' and 'object' keys or false on failure.
+	 * @return array|object|false An associative array or object with 'bucket' and 'object' keys, or false on failure.
 	 * @throws Exception
 	 */
-	function parse_path( string $path, string $default_bucket = '', array $allowed_extensions = [], ?callable $error_callback = null, array $disallowed_protocols = [] ) {
-		$resolver = new Path_Resolver( $default_bucket, $allowed_extensions, $disallowed_protocols );
+	function parsePath( string $path, string $defaultBucket = '', bool $asObject = false, array $allowedExtensions = [], ?callable $errorCallback = null, array $disallowedProtocols = [] ) {
+		$resolver = new PathResolver( $defaultBucket, $allowedExtensions, $disallowedProtocols );
 		try {
-			return $resolver->parse_path( $path );
+			return $resolver->parsePath( $path, $asObject );
 		} catch ( Exception $e ) {
-			if ( is_callable( $error_callback ) ) {
-				call_user_func( $error_callback, $e );
+			if ( is_callable( $errorCallback ) ) {
+				call_user_func( $errorCallback, $e );
 			}
 
 			// Handle the exception or log it if needed
@@ -55,26 +57,27 @@ if ( ! function_exists( 'parse_path' ) ) {
 	}
 }
 
-if ( ! function_exists( 'is_valid_path' ) ) {
+
+if ( ! function_exists( 'isValidPath' ) ) {
 	/**
 	 * Determines if the provided path is a valid S3 path.
 	 *
-	 * @param string        $path                 The path to check.
-	 * @param string        $default_bucket       The default bucket to use if none is provided in the path.
-	 * @param array         $allowed_extensions   List of allowed file extensions.
-	 * @param callable|null $error_callback       Callback function for error handling.
-	 * @param array         $disallowed_protocols List of protocols that are not allowed in S3 paths.
+	 * @param string        $path                The path to check.
+	 * @param string        $defaultBucket       The default bucket to use if none is provided in the path.
+	 * @param array         $allowedExtensions   List of allowed file extensions.
+	 * @param callable|null $errorCallback       Callback function for error handling.
+	 * @param array         $disallowedProtocols List of protocols that are not allowed in S3 paths.
 	 *
 	 * @return bool True if the path is a valid S3 path, false otherwise.
 	 * @throws Exception
 	 */
-	function is_valid_path( string $path, string $default_bucket = '', array $allowed_extensions = [], ?callable $error_callback = null, array $disallowed_protocols = [] ): bool {
-		$resolver = new Path_Resolver( $default_bucket, $allowed_extensions, $disallowed_protocols );
+	function isValidPath( string $path, string $defaultBucket = '', array $allowedExtensions = [], ?callable $errorCallback = null, array $disallowedProtocols = [] ): bool {
+		$resolver = new PathResolver( $defaultBucket, $allowedExtensions, $disallowedProtocols );
 		try {
-			return $resolver->is_valid_path( $path );
+			return $resolver->isValidPath( $path );
 		} catch ( Exception $e ) {
-			if ( is_callable( $error_callback ) ) {
-				call_user_func( $error_callback, $e );
+			if ( is_callable( $errorCallback ) ) {
+				call_user_func( $errorCallback, $e );
 			}
 
 			// Handle the exception or log it if needed
