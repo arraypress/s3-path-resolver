@@ -32,7 +32,7 @@ composer require arraypress/s3-utilities
 use ArrayPress\S3\PathResolver;
 
 // Create a resolver instance with a default bucket and allowed file extensions.
-$resolver = new PathResolver( 'default-bucket', ['zip', 'jpg'], ['http://'] );
+$resolver = new PathResolver( 'default_bucket', [ 'zip', 'jpg' ], [ 'http://' ] );
 ```
 
 **Parse an S3 Path:**
@@ -40,9 +40,9 @@ $resolver = new PathResolver( 'default-bucket', ['zip', 'jpg'], ['http://'] );
 ```php
 try {
     // Parse an S3 path to get the bucket and object key.
-    $pathInfo = $resolver->parsePath('/my-bucket/my-object.zip');
-    echo "Bucket: {$pathInfo['bucket']}, Object Key: {$pathInfo['object_key']}";
-} catch (Exception $e) {
+    $pathInfo = $resolver->parsePath( '/my-bucket/my-object.zip' );
+    echo "Bucket: {$pathInfo->bucket}, Object Key: {$pathInfo->object_key}";
+} catch ( Exception $e ) {
     // Handle exceptions, such as invalid paths or protocols.
     echo "Error: " . $e->getMessage();
 }
@@ -52,18 +52,18 @@ try {
 
 ```php
 // Add additional allowed file extensions.
-$resolver->addAllowedExtension('pdf');
-$resolver->addAllowedExtension('docx');
+$resolver->addAllowedExtension( 'pdf' );
+$resolver->addAllowedExtension( 'docx' );
 
 // Append a new disallowed protocol.
-$resolver->addDisallowedProtocol('file://');
+$resolver->addDisallowedProtocol( 'file://' );
 ```
 
 **Validate an S3 Path:**
 
 ```php
 // Check if the S3 path is valid.
-if ($resolver->isValidPath($pathInfo['object'])) {
+if ($resolver->isValidPath( $pathInfo['object'] ) ) {
     echo "The path is valid.";
 } else {
     echo "The path is invalid.";
@@ -78,7 +78,7 @@ if ($resolver->isValidPath($pathInfo['object'])) {
 use ArrayPress\S3;
 
 // Check if an EDD download file is stored on S3.
-$isS3File = ArrayPress\S3\is_edd_file_s3_path( $downloadId, $fileId, 'default-bucket', ['zip'], function ($e) {
+$isS3File = ArrayPress\S3\EDD\is_s3_path( $downloadId, $fileId, 'default_bucket', [ 'zip' ], [ 'http://', 'https://' ], function ($e) {
     echo "Error: " . $e->getMessage();
 } );
 
@@ -91,7 +91,7 @@ echo $isS3File ? "File is on S3." : "File is not on S3.";
 use ArrayPress\S3;
 
 // Verify if a WooCommerce product file is hosted on S3.
-$isS3ProductFile = ArrayPress\S3\is_wc_file_s3_path( $productId, $downloadId, 'default-bucket', ['pdf'], function ($e) {
+$isS3ProductFile = ArrayPress\S3\WC\is_s3_path( $productId, $downloadId, 'default_bucket', [ 'pdf' ], [ 'http://', 'https://' ], function ($e) {
     echo "Error: " . $e->getMessage();
 } );
 

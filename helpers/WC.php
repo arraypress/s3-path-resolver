@@ -1,64 +1,57 @@
 <?php
 /**
- * This file contains helper functions for managing Amazon S3 paths in the context of
- * Easy Digital Downloads (EDD) and WooCommerce (WC) plugins. The functions are
- * designed to work with the Path_Resolver class, providing utilities for
- * validating and parsing S3 paths.
- *
- * Functions included:
- * - `is_edd_download_file_s3_url`: Determines if a downloadable file from EDD,
- *   specified by its download ID (and optionally file ID), is stored on an S3 server.
- *   This function checks the file's URL against S3 URL patterns and handles exceptions
- *   with an optional error callback.
- *
- * - `is_wc_download_file_s3_url`: Checks if a WooCommerce product download file,
- *   identified by product ID (and optionally download ID), is hosted on Amazon S3.
- *   It validates the file URL for S3 conformity and supports error handling through
- *   a callback.
- *
- * Both functions ensure compatibility with EDD and WooCommerce, respectively, by
- * validating the existence of necessary functions before proceeding. They also provide
- * flexible error handling and support filtering the results via WordPress hooks.
- *
- * Usage example:
- * $isEDDS3File = is_edd_download_file_s3_url($downloadID, $fileID, 'my_bucket', ['zip'], $errorHandler);
- * $isWCS3File = is_wc_download_file_s3_url($productID, $downloadID, 'my_bucket', ['pdf'], $errorHandler);
- *
- * Note: These functions check for the existence of the Path_Resolver class and the
- * relevant EDD/WC functions to avoid conflicts and redefinitions.
+ * Amazon S3 Path Validator for WooCommerce (WC)
  *
  * @package       ArrayPress/s3-path-resolver
- * @copyright     Copyright (c) 2023, ArrayPress Limited
- * @license       GPL2+
+ * @copyright     Copyright 2023, ArrayPress Limited
+ * @license       GPL-2.0-or-later
  * @version       1.0.0
  * @author        David Sherlock
  */
 
 declare( strict_types=1 );
 
-namespace ArrayPress\S3;
+namespace ArrayPress\S3\WC;
 
 use Exception;
-use InvalidArgumentException;
 
-if ( ! function_exists( 'is_wc_file_s3_path' ) ) {
+if ( ! function_exists( 'is_s3_path' ) ) {
 	/**
-	 * Check if a WooCommerce product download file is stored on an Amazon S3 server.
+	 * Assists in identifying if a WooCommerce product's downloadable file resides on Amazon S3. This function is essential
+	 * for integrating WooCommerce stores with Amazon S3, providing a reliable method for verifying that a product's download
+	 * file is stored on S3. It streamlines the process of validating S3 URLs for WooCommerce downloadable products, ensuring
+	 * that files adhere to S3 storage conventions and facilitating secure, scalable digital product distribution.
 	 *
-	 * This function verifies whether a file associated with a WooCommerce product's downloadable
-	 * files, identified by product ID and an optional download ID, is hosted on Amazon S3.
-	 * It checks the file's URL to ascertain if it conforms to an S3 URL pattern.
+	 * Usage:
+	 * This utility function is invaluable for WooCommerce store operators utilizing Amazon S3 for storing downloadable content.
+	 * It checks if a WooCommerce product's downloadable file URL is formatted correctly as an S3 URL, enabling efficient error
+	 * handling and integration with existing WooCommerce setups. An optional error callback provides flexibility in managing
+	 * validation failures or configuration issues.
 	 *
-	 * @param int           $product_id         The ID of the WooCommerce product to check.
-	 * @param string|null   $download_id        The ID of the specific download within the product (optional).
-	 * @param string        $default_bucket     Default S3 bucket name to use for URL validation.
-	 * @param array         $allowed_extensions List of permissible file extensions for downloads.
-	 * @param callable|null $error_callback     Function to call for error handling (optional).
+	 * Example:
+	 * $productID = 456; // The ID of the WooCommerce product.
+	 * $downloadID = 'abc123'; // Optional: The specific download ID within the product.
+	 * $isS3Path = is_s3_path($productID, $downloadID, 'my_bucket', ['pdf', 'docx'], function($error) {
+	 *     // Error handling logic here.
+	 *     echo "Error while validating S3 URL: $error";
+	 * });
+	 * if ($isS3Path) {
+	 *     echo "The downloadable file is hosted on S3.";
+	 * } else {
+	 *     echo "The file is not on S3 or failed validation.";
+	 * }
+	 *
+	 * @param int           $product_id           The ID of the WooCommerce product to check.
+	 * @param string|null   $download_id          Optional. The specific download ID within the product.
+	 * @param string        $default_bucket       The default S3 bucket name for URL validation.
+	 * @param array         $allowed_extensions   List of permissible file extensions for downloads.
+	 * @param array         $disallowed_protocols Optional. List of protocols that are not allowed in S3 paths.
+	 * @param callable|null $error_callback       Optional. Function to call for error handling.
 	 *
 	 * @return bool True if the file is hosted on Amazon S3, false otherwise.
-	 * @throws Exception
+	 * @throws Exception If validation fails or if necessary WooCommerce functions are unavailable.
 	 */
-	function is_wc_file_s3_path( int $product_id, string $download_id, string $default_bucket = 'default_bucket', array $allowed_extensions = [], ?callable $error_callback = null ): bool {
+	function is_s3_path( int $product_id, string $download_id, string $default_bucket = '', array $allowed_extensions = [], array $disallowed_protocols = [], ?callable $error_callback = null ): bool {
 
 		// Exit early if the product ID is not provided or WooCommerce functions are not available.
 		if ( empty( $product_id ) || ! function_exists( 'wc_get_product' ) ) {
@@ -86,7 +79,7 @@ if ( ! function_exists( 'is_wc_file_s3_path' ) ) {
 			}
 
 			// Validate whether the file URL corresponds to an S3 path.
-			if ( ! empty( $file_url ) && isValidPath( $file_url, $default_bucket, $allowed_extensions, $error_callback ) ) {
+			if ( ! empty( $file_url ) && \ArrayPress\S3\isValidPath( $file_url, $default_bucket, $allowed_extensions, $disallowed_protocols, $error_callback ) ) {
 				$retval = true;
 			}
 		}

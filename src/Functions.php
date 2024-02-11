@@ -34,18 +34,18 @@ if ( ! function_exists( 'parsePath' ) ) {
 	 *
 	 * @param string        $path                The S3 path.
 	 * @param string        $defaultBucket       The default bucket to use if none is provided in the path.
-	 * @param bool          $asObject            Whether to return the result as an object. Default false.
 	 * @param array         $allowedExtensions   List of allowed file extensions.
-	 * @param callable|null $errorCallback       Callback function for error handling.
 	 * @param array         $disallowedProtocols List of protocols that are not allowed in S3 paths.
+	 * @param bool          $asArray             Whether to return the result as an array. Default false.
+	 * @param callable|null $errorCallback       Callback function for error handling.
 	 *
 	 * @return array|object|false An associative array or object with 'bucket' and 'object' keys, or false on failure.
 	 * @throws Exception
 	 */
-	function parsePath( string $path, string $defaultBucket = '', bool $asObject = false, array $allowedExtensions = [], ?callable $errorCallback = null, array $disallowedProtocols = [] ) {
+	function parsePath( string $path, string $defaultBucket = '', array $allowedExtensions = [], array $disallowedProtocols = [], bool $asArray = false, ?callable $errorCallback = null ) {
 		$resolver = new PathResolver( $defaultBucket, $allowedExtensions, $disallowedProtocols );
 		try {
-			return $resolver->parsePath( $path, $asObject );
+			return $resolver->parsePath( $path, $asArray );
 		} catch ( Exception $e ) {
 			if ( is_callable( $errorCallback ) ) {
 				call_user_func( $errorCallback, $e );
@@ -56,7 +56,6 @@ if ( ! function_exists( 'parsePath' ) ) {
 		}
 	}
 }
-
 
 if ( ! function_exists( 'isValidPath' ) ) {
 	/**
@@ -71,7 +70,7 @@ if ( ! function_exists( 'isValidPath' ) ) {
 	 * @return bool True if the path is a valid S3 path, false otherwise.
 	 * @throws Exception
 	 */
-	function isValidPath( string $path, string $defaultBucket = '', array $allowedExtensions = [], ?callable $errorCallback = null, array $disallowedProtocols = [] ): bool {
+	function isValidPath( string $path, string $defaultBucket = '', array $allowedExtensions = [], array $disallowedProtocols = [], ?callable $errorCallback = null ): bool {
 		$resolver = new PathResolver( $defaultBucket, $allowedExtensions, $disallowedProtocols );
 		try {
 			return $resolver->isValidPath( $path );
