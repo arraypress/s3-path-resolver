@@ -32,7 +32,7 @@ composer require arraypress/s3-utilities
 use ArrayPress\S3\PathResolver;
 
 // Create a resolver instance with a default bucket and allowed file extensions.
-$resolver = new PathResolver( 'default_bucket', [ 'zip', 'jpg' ], [ 'http://' ] );
+$resolver = new PathResolver( 'default-bucket', [ 'zip', 'jpg' ], [ 'http://' ] );
 ```
 
 **Parse an S3 Path:**
@@ -63,7 +63,7 @@ $resolver->addDisallowedProtocol( 'file://' );
 
 ```php
 // Check if the S3 path is valid.
-if ($resolver->isValidPath( $pathInfo['object'] ) ) {
+if ($resolver->isValidPath( '/my-bucket/my-object.zip' ) ) {
     echo "The path is valid.";
 } else {
     echo "The path is invalid.";
@@ -75,10 +75,10 @@ if ($resolver->isValidPath( $pathInfo['object'] ) ) {
 **Easy Digital Downloads S3 File Check:**
 
 ```php
-use ArrayPress\S3;
+use ArrayPress\S3\EDD;
 
 // Check if an EDD download file is stored on S3.
-$isS3File = ArrayPress\S3\EDD\is_s3_path( $downloadId, $fileId, 'default_bucket', [ 'zip' ], [ 'http://', 'https://' ], function ($e) {
+$isS3File = EDD\is_s3_path( $downloadId, $fileId, 'default-bucket', [ 'zip' ], [ 'http://', 'https://' ], function ($e) {
     echo "Error: " . $e->getMessage();
 } );
 
@@ -88,10 +88,10 @@ echo $isS3File ? "File is on S3." : "File is not on S3.";
 **WooCommerce S3 File Check:**
 
 ```php
-use ArrayPress\S3;
+use ArrayPress\S3\WC;
 
 // Verify if a WooCommerce product file is hosted on S3.
-$isS3ProductFile = ArrayPress\S3\WC\is_s3_path( $productId, $downloadId, 'default_bucket', [ 'pdf' ], [ 'http://', 'https://' ], function ($e) {
+$isS3ProductFile = WC\is_s3_path( $productId, $downloadId, 'default-bucket', [ 'pdf' ], [ 'http://', 'https://' ], function ($e) {
     echo "Error: " . $e->getMessage();
 } );
 
