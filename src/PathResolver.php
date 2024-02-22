@@ -197,7 +197,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\PathResolver' ) ) :
 				}
 
 				$bucket = array_shift( $segments );
-				Validate::bucket( $bucket );
+				Validate::bucket( (string) $bucket );
 				$result = [
 					'bucket'     => $bucket,
 					'object_key' => Sanitize::objectKey( implode( '/', $segments ) )

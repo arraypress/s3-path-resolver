@@ -35,6 +35,7 @@ if ( ! function_exists( 'is_s3_path' ) ) {
 	 *     // Error handling logic here.
 	 *     echo "Error while validating S3 URL: $error";
 	 * });
+	 *
 	 * if ($isS3Path) {
 	 *     echo "The downloadable file is hosted on S3.";
 	 * } else {

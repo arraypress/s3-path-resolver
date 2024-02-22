@@ -21,7 +21,7 @@ Incorporate the S3 Path Resolver into your projects to navigate S3 paths with co
 To integrate the S3 Path Resolver into your project, use Composer:
 
 ```bash
-composer require arraypress/s3-utilities
+composer require arraypress/s3-path-resolver
 ```
 
 ## PathResolver Class Examples
