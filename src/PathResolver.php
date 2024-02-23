@@ -56,7 +56,6 @@ if ( ! class_exists( __NAMESPACE__ . '\\PathResolver' ) ) :
 		private array $disallowedProtocols = [
 			'https://',
 			'http://',
-			'edd-dbfs',
 			'ftp://',
 			's3://'
 		];
