@@ -185,8 +185,8 @@ if ( ! class_exists( __NAMESPACE__ . '\\PathResolver' ) ) :
 
 				Validate::bucket( $this->defaultBucket );
 				$result = [
-					'bucket'     => $this->defaultBucket,
-					'object_key' => Sanitize::objectKey( $path )
+					'bucket'    => $this->defaultBucket,
+					'objectKey' => Sanitize::objectKey( $path )
 				];
 			} else {
 				$segments = explode( '/', ltrim( $path, '/' ) );
@@ -197,8 +197,8 @@ if ( ! class_exists( __NAMESPACE__ . '\\PathResolver' ) ) :
 				$bucket = array_shift( $segments );
 				Validate::bucket( (string) $bucket );
 				$result = [
-					'bucket'     => $bucket,
-					'object_key' => Sanitize::objectKey( implode( '/', $segments ) )
+					'bucket'    => $bucket,
+					'objectKey' => Sanitize::objectKey( implode( '/', $segments ) )
 				];
 			}
 
