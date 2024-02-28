@@ -24,61 +24,78 @@ To integrate the S3 Path Resolver into your project, use Composer:
 composer require arraypress/s3-path-resolver
 ```
 
-## PathResolver Class Examples
+### Understanding Path Resolution in PathResolver
 
-**Instantiate the PathResolver:**
+The `PathResolver` class processes S3 paths differently based on the presence of a leading slash (`/`) and whether a default bucket is set. Here's how it works:
 
-```php
-use ArrayPress\S3\PathResolver;
+#### Paths Starting with `/`
 
-// Create a resolver instance with a default bucket and allowed file extensions.
-$resolver = new PathResolver( 'default-bucket', [ 'zip', 'jpg' ], [ 'http://' ] );
-```
-
-**Parse an S3 Path:**
+When a path starts with a `/`, the segment immediately following the `/` is treated as the bucket name, and the rest of the path as the object key.
 
 ```php
-try {
-    // Parse an S3 path to get the bucket and object key.
-    $pathInfo = $resolver->parsePath( '/my-bucket/my-object.zip' );
-    echo "Bucket: {$pathInfo->bucket}, Object Key: {$pathInfo->object_key}";
-} catch ( Exception $e ) {
-    // Handle exceptions, such as invalid paths or protocols.
-    echo "Error: " . $e->getMessage();
-}
+// No default bucket set
+$resolver = new ArrayPress\S3\PathResolver();
+$pathInfo = $resolver->parsePath('/mybucket/myfile.zip');
 ```
 
-**Add Allowed Extensions and Disallowed Protocols:**
+- **Bucket**: `mybucket`
+- **Object Key**: `myfile.zip`
+
+This approach allows explicit specification of the bucket in the path. If no default bucket is set and the path does not start with `/`, the operation will fail because the resolver cannot determine the bucket.
+
+#### Paths Without Leading `/` and No Default Bucket
+
+If a path does not start with `/` and no default bucket is set, the `PathResolver` cannot resolve the bucket and will result in a failure:
 
 ```php
-// Add additional allowed file extensions.
-$resolver->addAllowedExtension( 'pdf' );
-$resolver->addAllowedExtension( 'docx' );
-
-// Append a new disallowed protocol.
-$resolver->addDisallowedProtocol( 'file://' );
+$resolver = new ArrayPress\S3\PathResolver();
+// Attempting to parse a path without a leading '/' and no default bucket set.
+// This will fail because the resolver cannot determine the bucket.
+$pathInfo = $resolver->parsePath('myfile.zip');
 ```
 
-**Validate an S3 Path:**
+#### Setting a Default Bucket
+
+Setting a default bucket allows the `PathResolver` to resolve paths that do not explicitly specify a bucket:
 
 ```php
-// Check if the S3 path is valid.
-if ($resolver->isValidPath( '/my-bucket/my-object.zip' ) ) {
-    echo "The path is valid.";
-} else {
-    echo "The path is invalid.";
-}
+$resolver = new ArrayPress\S3\PathResolver('default-bucket');
+// Since a default bucket is set, this path is resolved successfully.
+$pathInfo = $resolver->parsePath('myfile.zip');
 ```
+
+- **Bucket**: `default-bucket`
+- **Object Key**: `myfile.zip`
+
+In this scenario, because a default bucket is provided, paths without a leading `/` are assumed to belong to the default bucket.
+
+#### Conclusion
+
+Understanding how `PathResolver` interprets paths based on the presence of a leading slash and a default bucket setting is crucial for correctly managing S3 object locations. Explicitly starting your path with `/` allows you to specify the bucket directly within the path, offering flexibility in scenarios where objects may reside across multiple buckets. Conversely, setting a default bucket simplifies path handling for applications primarily interacting with a single bucket, reducing the need to repeatedly specify the bucket name.
+
+### Special Case: Default Bucket and Path Without Bucket Name
+
+If you have a default bucket set but also pass a path without specifying a bucket (e.g., `files/mydog.zip`), the `PathResolver` will apply the default bucket to the path:
+
+```php
+$resolver->setDefaultBucket('my-default-bucket');
+$pathInfo = $resolver->parsePath('files/mydog.zip');
+```
+
+- **Bucket**: `my-default-bucket`
+- **Object Key**: `files/mydog.zip`
+
+This ensures that even when a bucket name is omitted from the path, the file can still be resolved correctly using the default bucket.
 
 ## Easy Digital Downloads and WooCommerce Helper Functions
 
 **Easy Digital Downloads S3 File Path Check:**
 
 ```php
-use function ArrayPress\S3\EDD\is_s3_path;
+use function ArrayPress\S3\EDD\isS3Path;
 
 // Check if an EDD download file is stored on S3.
-$isS3File = is_s3_path( $downloadId, $fileId, 'default-bucket', [ 'zip' ], [ 'http://', 'https://' ], function ($e) {
+$isS3File = isS3Path( $downloadId, $fileId, 'default-bucket', [ 'zip' ], [ 'http://', 'https://' ], function ($e) {
     echo "Error: " . $e->getMessage();
 } );
 
@@ -88,10 +105,10 @@ echo $isS3File ? "File is on S3." : "File is not on S3.";
 **WooCommerce S3 File Path Check:**
 
 ```php
-use function ArrayPress\S3\WC\is_s3_path;
+use function ArrayPress\S3\WC\isS3Path;
 
 // Verify if a WooCommerce product file is hosted on S3.
-$isS3ProductFile = is_s3_path( $productId, $downloadId, 'default-bucket', [ 'pdf' ], [ 'http://', 'https://' ], function ($e) {
+$isS3ProductFile = isS3Path( $productId, $downloadId, 'default-bucket', [ 'pdf' ], [ 'http://', 'https://' ], function ($e) {
     echo "Error: " . $e->getMessage();
 } );
 
