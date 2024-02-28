@@ -36,16 +36,15 @@ if ( ! function_exists( 'parsePath' ) ) {
 	 * @param string        $defaultBucket       Optional. The default bucket to use if none is provided in the path.
 	 * @param array         $allowedExtensions   Optional. List of allowed file extensions.
 	 * @param array         $disallowedProtocols Optional. List of protocols that are not allowed in S3 paths.
-	 * @param bool          $asArray             Optional. Whether to return the result as an array. Default false.
 	 * @param callable|null $errorCallback       Optional. Callback function for error handling.
 	 *
 	 * @return array|object|false An associative array or object with 'bucket' and 'object' keys, or false on failure.
 	 * @throws Exception
 	 */
-	function parsePath( string $path, string $defaultBucket = '', array $allowedExtensions = [], array $disallowedProtocols = [], bool $asArray = false, ?callable $errorCallback = null ) {
+	function parsePath( string $path, string $defaultBucket = '', array $allowedExtensions = [], array $disallowedProtocols = [], ?callable $errorCallback = null ) {
 		$resolver = new PathResolver( $defaultBucket, $allowedExtensions, $disallowedProtocols );
 		try {
-			return $resolver->parsePath( $path, $asArray );
+			return $resolver->parsePath( $path );
 		} catch ( Exception $e ) {
 			if ( is_callable( $errorCallback ) ) {
 				call_user_func( $errorCallback, $e );

@@ -72,26 +72,26 @@ if ($resolver->isValidPath( '/my-bucket/my-object.zip' ) ) {
 
 ## Easy Digital Downloads and WooCommerce Helper Functions
 
-**Easy Digital Downloads S3 File Check:**
+**Easy Digital Downloads S3 File Path Check:**
 
 ```php
-use ArrayPress\S3\EDD;
+use function ArrayPress\S3\EDD\is_s3_path;
 
 // Check if an EDD download file is stored on S3.
-$isS3File = EDD\is_s3_path( $downloadId, $fileId, 'default-bucket', [ 'zip' ], [ 'http://', 'https://' ], function ($e) {
+$isS3File = is_s3_path( $downloadId, $fileId, 'default-bucket', [ 'zip' ], [ 'http://', 'https://' ], function ($e) {
     echo "Error: " . $e->getMessage();
 } );
 
 echo $isS3File ? "File is on S3." : "File is not on S3.";
 ```
 
-**WooCommerce S3 File Check:**
+**WooCommerce S3 File Path Check:**
 
 ```php
-use ArrayPress\S3\WC;
+use function ArrayPress\S3\WC\is_s3_path;
 
 // Verify if a WooCommerce product file is hosted on S3.
-$isS3ProductFile = WC\is_s3_path( $productId, $downloadId, 'default-bucket', [ 'pdf' ], [ 'http://', 'https://' ], function ($e) {
+$isS3ProductFile = is_s3_path( $productId, $downloadId, 'default-bucket', [ 'pdf' ], [ 'http://', 'https://' ], function ($e) {
     echo "Error: " . $e->getMessage();
 } );
 

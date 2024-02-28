@@ -156,15 +156,14 @@ if ( ! class_exists( __NAMESPACE__ . '\\PathResolver' ) ) :
 		/**
 		 * Parse the provided path to extract the bucket and object key.
 		 *
-		 * @param string $path      The S3 path.
-		 * @param bool   $asArray Whether to return the result as an array. Default false.
+		 * @param string $path The S3 path.
 		 *
-		 * @return array|stdClass An associative array or stdClass object with 'bucket' and 'object_key' properties.
+		 * @return Object    A stdClass object with 'bucket' and 'object_key' properties.
 		 * @throws Exception If the path is empty, contains a disallowed protocol,
 		 *                   has an invalid file extension, or does not contain a valid object key.
 		 * @throws InvalidArgumentException If the bucket name is invalid.
 		 */
-		public function parsePath( string $path, bool $asArray = false ) {
+		public function parsePath( string $path ): object {
 			$path = trim( $path );
 
 			if ( empty( $path ) ) {
@@ -203,7 +202,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\PathResolver' ) ) :
 				];
 			}
 
-			return $asArray ? $result : (object) $result;
+			return (object) $result;
 		}
 
 		/**
