@@ -24,8 +24,8 @@
     },
     "files": [
       "src/Functions.php",
-      "utilities/EDD.php",
-      "utilities/WC.php"
+      "helpers/EDD.php",
+      "helpers/WC.php"
     ]
   },
   "minimum-stability": "dev",

@@ -20,7 +20,7 @@
  * @package       ArrayPress/s3-path-resolver
  * @copyright     Copyright (c) 2023, ArrayPress Limited
  * @license       GPL2+
- * @version       1.0.0
+ * @version       0.1.0
  * @author        David Sherlock
  */
 
@@ -98,11 +98,13 @@ if ( ! class_exists( __NAMESPACE__ . '\\PathResolver' ) ) :
 		 * @throws InvalidArgumentException If the provided bucket name is invalid.
 		 */
 		public function setDefaultBucket( string $defaultBucket ): void {
-			$this->defaultBucket = trim( $defaultBucket, '/' );
-			if ( ! empty( $this->defaultBucket ) ) {
-				Validate::bucket( $this->defaultBucket );
+			$defaultBucket = trim( $defaultBucket, '/' );
+			if ( ! empty( $defaultBucket ) ) {
+				Validate::bucket( $defaultBucket );
 			}
+			$this->defaultBucket = $defaultBucket;
 		}
+
 
 		/**
 		 * Sets the list of allowed file extensions.
@@ -189,31 +191,43 @@ if ( ! class_exists( __NAMESPACE__ . '\\PathResolver' ) ) :
 				throw new Exception( "The provided path has an invalid file extension." );
 			}
 
-			if ( $path[0] !== '/' ) {
-				if ( empty( $this->defaultBucket ) ) {
-					throw new Exception( "No bucket provided and no default bucket set." );
-				}
-
-				Validate::bucket( $this->defaultBucket );
-				$result = [
-					'bucket'    => $this->defaultBucket,
-					'objectKey' => Sanitize::objectKey( $path )
-				];
-			} else {
+			if ( $path[0] === '/' ) {
+				// Handle case where path starts with '/' but no bucket is provided
 				$segments = explode( '/', ltrim( $path, '/' ) );
 				if ( count( $segments ) < 2 ) {
-					throw new Exception( "The path does not contain a valid object key." );
+					// Assume the path is an object key and use the default bucket
+					if ( empty( $this->defaultBucket ) ) {
+						throw new Exception( "No bucket provided and no default bucket set." );
+					}
+					$bucket    = $this->defaultBucket;
+					$objectKey = Sanitize::objectKey( ltrim( $path, '/' ) );
+				} else {
+					// Normal case with both bucket and object key in path
+					$bucket = array_shift( $segments );
+					Validate::bucket( $bucket );
+					$objectKey = Sanitize::objectKey( implode( '/', $segments ) );
 				}
-
-				$bucket = array_shift( $segments );
-				Validate::bucket( (string) $bucket );
-				$result = [
-					'bucket'    => $bucket,
-					'objectKey' => Sanitize::objectKey( implode( '/', $segments ) )
-				];
+			} else {
+				// If the path doesn't start with '/', honor the default bucket if set
+				if ( ! empty( $this->defaultBucket ) ) {
+					$bucket    = $this->defaultBucket;
+					$objectKey = Sanitize::objectKey( $path );
+				} else {
+					// Split the path into segments and assume the first part is the bucket
+					$segments = explode( '/', $path );
+					if ( count( $segments ) < 2 ) {
+						throw new Exception( "The provided path does not contain a valid bucket and object key." );
+					}
+					$bucket = array_shift( $segments );
+					Validate::bucket( $bucket );
+					$objectKey = Sanitize::objectKey( implode( '/', $segments ) );
+				}
 			}
 
-			return (object) $result;
+			return (object) [
+				'bucket'    => $bucket,
+				'objectKey' => $objectKey
+			];
 		}
 
 		/**
@@ -263,6 +277,9 @@ if ( ! class_exists( __NAMESPACE__ . '\\PathResolver' ) ) :
 		 * @return bool True if the path is a valid S3 path, false otherwise.
 		 */
 		public function isValidPath( string $path ): bool {
+			// Trim the path.
+			$path = trim( $path );
+
 			// Check for disallowed protocol.
 			if ( $this->hasDisallowedProtocol( $path ) ) {
 				return false;
@@ -285,17 +302,29 @@ if ( ! class_exists( __NAMESPACE__ . '\\PathResolver' ) ) :
 					return false;
 				}
 			} else {
-				// If the path doesn't start with '/', check the default bucket.
-				if ( empty( $this->defaultBucket ) ) {
-					return false;
-				}
-
-				// Validate the default bucket.
-				try {
-					Validate::bucket( $this->defaultBucket );
-				} catch ( Exception $e ) {
-					// If validation fails, return false.
-					return false;
+				// If the path doesn't start with '/', use the default bucket if set.
+				if ( ! empty( $this->defaultBucket ) ) {
+					try {
+						// Validate the default bucket.
+						Validate::bucket( $this->defaultBucket );
+					} catch ( Exception $e ) {
+						// If validation fails, return false.
+						return false;
+					}
+				} else {
+					// If no default bucket is set, the path must include a valid bucket.
+					$segments = explode( '/', $path );
+					if ( count( $segments ) < 2 ) {
+						return false;
+					}
+					$bucket = array_shift( $segments );
+					try {
+						// Validate the extracted bucket name.
+						Validate::bucket( $bucket );
+					} catch ( Exception $e ) {
+						// If validation fails, return false.
+						return false;
+					}
 				}
 			}
 

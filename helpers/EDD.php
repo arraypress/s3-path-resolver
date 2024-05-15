@@ -5,7 +5,7 @@
  * @package       ArrayPress/s3-path-resolver
  * @copyright     Copyright 2023, ArrayPress Limited
  * @license       GPL-2.0-or-later
- * @version       1.0.0
+ * @version       0.1.0
  * @author        David Sherlock
  */
 
