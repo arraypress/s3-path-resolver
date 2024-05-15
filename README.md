@@ -63,7 +63,7 @@ If a path does not start with `/` and no default bucket is set, the `PathResolve
 $resolver = new PathResolver();
 try {
     $pathInfo = $resolver->parsePath( 'myfile.zip' );
-} catch (Exception $e) {
+} catch ( Exception $e ) {
     echo "Error: " . $e->getMessage(); // Outputs: The provided path does not contain a valid bucket and object key.
 }
 ```
@@ -73,8 +73,8 @@ try {
 Setting a default bucket allows the `PathResolver` to resolve paths that do not explicitly specify a bucket:
 
 ```php
-$resolver = new PathResolver('default-bucket');
-$pathInfo = $resolver->parsePath('myfile.zip');
+$resolver = new PathResolver( 'default-bucket' );
+$pathInfo = $resolver->parsePath( 'myfile.zip' );
 
 echo "Bucket: " . $pathInfo->bucket; // Outputs: default-bucket
 echo "Object Key: " . $pathInfo->objectKey; // Outputs: myfile.zip
@@ -85,8 +85,8 @@ echo "Object Key: " . $pathInfo->objectKey; // Outputs: myfile.zip
 If you have a default bucket set but also pass a path without specifying a bucket (e.g., `files/mydog.zip`), the `PathResolver` will apply the default bucket to the path:
 
 ```php
-$resolver = new PathResolver('my-default-bucket');
-$pathInfo = $resolver->parsePath('files/mydog.zip');
+$resolver = new PathResolver( 'my-default-bucket' );
+$pathInfo = $resolver->parsePath( 'files/mydog.zip' );
 
 echo "Bucket: " . $pathInfo->bucket; // Outputs: my-default-bucket
 echo "Object Key: " . $pathInfo->objectKey; // Outputs: files/mydog.zip
@@ -98,7 +98,7 @@ echo "Object Key: " . $pathInfo->objectKey; // Outputs: files/mydog.zip
 
 ```php
 $resolver = new PathResolver();
-$pathInfo = $resolver->parsePath('/mybucket/myfile.zip');
+$pathInfo = $resolver->parsePath( '/mybucket/myfile.zip' );
 
 echo "Bucket: " . $pathInfo->bucket; // Outputs: mybucket
 echo "Object Key: " . $pathInfo->objectKey; // Outputs: myfile.zip
@@ -108,8 +108,8 @@ echo "Object Key: " . $pathInfo->objectKey; // Outputs: myfile.zip
 #### 2\. Path without leading slash and with default bucket:
 
 ```php
-$resolver = new PathResolver('my-default-bucket');
-$pathInfo = $resolver->parsePath('myfile.zip');
+$resolver = new PathResolver( 'my-default-bucket' );
+$pathInfo = $resolver->parsePath( 'myfile.zip' );
 
 echo "Bucket: " . $pathInfo->bucket; // Outputs: my-default-bucket
 echo "Object Key: " . $pathInfo->objectKey; // Outputs: myfile.zip
@@ -120,7 +120,7 @@ echo "Object Key: " . $pathInfo->objectKey; // Outputs: myfile.zip
 ```php
 $resolver = new PathResolver();
 try {
-    $pathInfo = $resolver->parsePath('ftp://mybucket/myfile.zip');
+    $pathInfo = $resolver->parsePath( 'ftp://mybucket/myfile.zip' );
 } catch (Exception $e) {
     echo "Error: " . $e->getMessage(); // Outputs: The provided path contains a disallowed protocol.
 }
@@ -132,7 +132,7 @@ try {
 $resolver = new PathResolver();
 $resolver->setAllowedExtensions( ['zip', 'rar'] );
 try {
-    $pathInfo = $resolver->parsePath('/mybucket/myfile.exe');
+    $pathInfo = $resolver->parsePath( '/mybucket/myfile.exe' );
 } catch (Exception $e) {
     echo "Error: " . $e->getMessage(); // Outputs: The provided path has an invalid file extension.
 }
@@ -153,8 +153,8 @@ echo "Object Key: " . $pathInfo->objectKey; // Outputs: folder1/folder2/myfile.z
 ```php
 $resolver = new PathResolver();
 try {
-    $pathInfo = $resolver->parsePath('myfile.zip');
-} catch (Exception $e) {
+    $pathInfo = $resolver->parsePath( 'myfile.zip' );
+} catch ( Exception $e ) {
     echo "Error: " . $e->getMessage(); // Outputs: The provided path does not contain a valid bucket and object key.
 }
 ```
@@ -165,7 +165,7 @@ try {
 
 ```php
 // Check if an EDD download file is stored on S3.
-$is_s3_file = is_s3_path($download_id, $file_id, 'default-bucket', ['zip'], ['http://', 'https://'], function ($e) {
+$is_s3_file = is_s3_path( $download_id, $file_id, 'default-bucket', ['zip'], ['http://', 'https://' ], function ( $e ) {
     echo "Error: " . $e->getMessage();
 });
 
@@ -177,7 +177,7 @@ echo $is_s3_file ? "File is on S3." : "File is not on S3.";
 
 ```php
 // Verify if a WooCommerce product file is hosted on S3.
-$is_s3_file = is_s3_path($product_id, $download_id, 'default-bucket', ['pdf'], ['http://', 'https://'], function ($e) {
+$is_s3_file = is_s3_path( $product_id, $download_id, 'default-bucket', ['pdf'], ['http://', 'https://' ], function ( $e ) {
     echo "Error: " . $e->getMessage();
 });
 

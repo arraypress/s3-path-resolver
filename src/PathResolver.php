@@ -18,7 +18,7 @@
  * Note: This class checks for its own existence before being defined to prevent redefinition.
  *
  * @package       ArrayPress/s3-path-resolver
- * @copyright     Copyright (c) 2023, ArrayPress Limited
+ * @copyright     Copyright (c) 2024, ArrayPress Limited
  * @license       GPL2+
  * @version       0.1.0
  * @author        David Sherlock

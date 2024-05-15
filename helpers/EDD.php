@@ -3,7 +3,7 @@
  * Amazon S3 Path Validator for Easy Digital Downloads (EDD)
  *
  * @package       ArrayPress/s3-path-resolver
- * @copyright     Copyright 2023, ArrayPress Limited
+ * @copyright     Copyright 2024, ArrayPress Limited
  * @license       GPL-2.0-or-later
  * @version       0.1.0
  * @author        David Sherlock
