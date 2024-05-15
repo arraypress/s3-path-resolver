@@ -24,6 +24,16 @@ To integrate the S3 Path Resolver into your project, use Composer:
 composer require arraypress/s3-path-resolver
 ```
 
+```php
+// Require the Composer autoloader.
+require_once __DIR__ . '/vendor/autoload.php';
+
+// Use the class and functions from the ArrayPress\S3 namespace.
+Use ArrayPress\S3\PathResolver;
+use function ArrayPress\S3\EDD\is_s3_path;
+use function ArrayPress\S3\WC\is_s3_path;
+```
+
 ### Understanding Path Resolution in PathResolver
 
 The `PathResolver` class processes S3 paths differently based on the presence of a leading slash (`/`) and whether a default bucket is set. Here's how it works:
@@ -34,8 +44,8 @@ When a path starts with a `/`, the segment immediately following the `/` is trea
 
 ```php
 // No default bucket set
-$resolver = new ArrayPress\S3\PathResolver();
-$pathInfo = $resolver->parsePath('/mybucket/myfile.zip');
+$resolver = new PathResolver();
+$pathInfo = $resolver->parsePath( '/mybucket/myfile.zip' );
 ```
 
 - **Bucket**: `mybucket`
@@ -48,10 +58,10 @@ This approach allows explicit specification of the bucket in the path. If no def
 If a path does not start with `/` and no default bucket is set, the `PathResolver` cannot resolve the bucket and will result in a failure:
 
 ```php
-$resolver = new ArrayPress\S3\PathResolver();
+$resolver = new PathResolver();
 // Attempting to parse a path without a leading '/' and no default bucket set.
 // This will fail because the resolver cannot determine the bucket.
-$pathInfo = $resolver->parsePath('myfile.zip');
+$pathInfo = $resolver->parsePath( 'myfile.zip' );
 ```
 
 #### Setting a Default Bucket
@@ -59,9 +69,9 @@ $pathInfo = $resolver->parsePath('myfile.zip');
 Setting a default bucket allows the `PathResolver` to resolve paths that do not explicitly specify a bucket:
 
 ```php
-$resolver = new ArrayPress\S3\PathResolver('default-bucket');
+$resolver = new PathResolver( 'default-bucket' );
 // Since a default bucket is set, this path is resolved successfully.
-$pathInfo = $resolver->parsePath('myfile.zip');
+$pathInfo = $resolver->parsePath( 'myfile.zip' );
 ```
 
 - **Bucket**: `default-bucket`
@@ -78,8 +88,9 @@ Understanding how `PathResolver` interprets paths based on the presence of a lea
 If you have a default bucket set but also pass a path without specifying a bucket (e.g., `files/mydog.zip`), the `PathResolver` will apply the default bucket to the path:
 
 ```php
-$resolver->setDefaultBucket('my-default-bucket');
-$pathInfo = $resolver->parsePath('files/mydog.zip');
+$resolver = new PathResolver( 'default-bucket' );
+$resolver->setDefaultBucket( 'my-default-bucket' );
+$pathInfo = $resolver->parsePath( 'files/mydog.zip' );
 ```
 
 - **Bucket**: `my-default-bucket`
@@ -92,27 +103,27 @@ This ensures that even when a bucket name is omitted from the path, the file can
 **Easy Digital Downloads S3 File Path Check:**
 
 ```php
-use function ArrayPress\S3\EDD\isS3Path;
+use function ArrayPress\S3\EDD\is_s3_path;
 
 // Check if an EDD download file is stored on S3.
-$isS3File = isS3Path( $downloadId, $fileId, 'default-bucket', [ 'zip' ], [ 'http://', 'https://' ], function ($e) {
+$is_s3_file = is_s3_path( $download_id, $file_id, 'default-bucket', [ 'zip' ], [ 'http://', 'https://' ], function ( $e ) {
     echo "Error: " . $e->getMessage();
 } );
 
-echo $isS3File ? "File is on S3." : "File is not on S3.";
+echo $is_s3_file ? "File is on S3." : "File is not on S3.";
 ```
 
 **WooCommerce S3 File Path Check:**
 
 ```php
-use function ArrayPress\S3\WC\isS3Path;
+use function ArrayPress\S3\WC\is_s3_path;
 
 // Verify if a WooCommerce product file is hosted on S3.
-$isS3ProductFile = isS3Path( $productId, $downloadId, 'default-bucket', [ 'pdf' ], [ 'http://', 'https://' ], function ($e) {
+$is_s3_file = is_s3_path( $product_id, $download_id, 'default-bucket', [ 'pdf' ], [ 'http://', 'https://' ], function ( $e ) {
     echo "Error: " . $e->getMessage();
 } );
 
-echo $isS3ProductFile ? "Product file is on S3." : "Product file is not on S3.";
+echo $is_s3_file ? "Product file is on S3." : "Product file is not on S3.";
 ```
 
 ## Contributions

@@ -14,9 +14,11 @@ declare( strict_types=1 );
 namespace ArrayPress\S3\WC;
 
 use Exception;
-use function ArrayPress\S3\isValidPath;
+use function ArrayPress\S3\is_valid_s3_path;
+use function function_exists;
+use function trim;
 
-if ( ! function_exists( 'isS3Path' ) ) {
+if ( ! function_exists( 'is_s3_path' ) ) {
 	/**
 	 * Assists in identifying if a WooCommerce product's downloadable file resides on Amazon S3. This function is essential
 	 * for integrating WooCommerce stores with Amazon S3, providing a reliable method for verifying that a product's download
@@ -30,38 +32,38 @@ if ( ! function_exists( 'isS3Path' ) ) {
 	 * validation failures or configuration issues.
 	 *
 	 * Example:
-	 * $productId = 456; // The ID of the WooCommerce product.
-	 * $downloadId = 'abc123'; // Optional: The specific download ID within the product.
-	 * $isS3Path = isS3Path($productId, $downloadId, 'my_bucket', ['pdf', 'docx'], function($error) {
+	 * $product_id = 456; // The ID of the WooCommerce product.
+	 * $download_id = 'abc123'; // Optional: The specific download ID within the product.
+	 * $is_s3_path = is_s3_path($product_id, $download_id, 'my_bucket', ['pdf', 'docx'], function($error) {
 	 *     // Error handling logic here.
 	 *     echo "Error while validating S3 URL: $error";
 	 * });
 	 *
-	 * if ($isS3Path) {
+	 * if ($is_s3_path) {
 	 *     echo "The downloadable file is hosted on S3.";
 	 * } else {
 	 *     echo "The file is not on S3 or failed validation.";
 	 * }
 	 *
-	 * @param int           $productId           The ID of the WooCommerce product to check.
-	 * @param string|null   $downloadId          Optional. The specific download ID within the product.
-	 * @param string        $defaultBucket       The default S3 bucket name for URL validation.
-	 * @param array         $allowedExtensions   List of permissible file extensions for downloads.
-	 * @param array         $disallowedProtocols Optional. List of protocols that are not allowed in S3 paths.
-	 * @param callable|null $errorCallback       Optional. Function to call for error handling.
+	 * @param int           $product_id           The ID of the WooCommerce product to check.
+	 * @param string|null   $download_id          Optional. The specific download ID within the product.
+	 * @param string        $default_bucket       The default S3 bucket name for URL validation.
+	 * @param array         $allowed_extensions   List of permissible file extensions for downloads.
+	 * @param array         $disallowed_protocols Optional. List of protocols that are not allowed in S3 paths.
+	 * @param callable|null $error_callback       Optional. Function to call for error handling.
 	 *
 	 * @return bool True if the file is hosted on Amazon S3, false otherwise.
 	 * @throws Exception If validation fails or if necessary WooCommerce functions are unavailable.
 	 */
-	function isS3Path( int $productId, ?string $downloadId = null, string $defaultBucket = '', array $allowedExtensions = [], array $disallowedProtocols = [], ?callable $errorCallback = null ): bool {
+	function is_s3_path( int $product_id, ?string $download_id = null, string $default_bucket = '', array $allowed_extensions = [], array $disallowed_protocols = [], ?callable $error_callback = null ): bool {
 
 		// Exit early if the product ID is not provided or WooCommerce functions are not available.
-		if ( empty( $productId ) || ! function_exists( 'wc_get_product' ) ) {
+		if ( empty( $product_id ) || ! function_exists( 'wc_get_product' ) ) {
 			return false;
 		}
 
 		// Retrieve the specified WooCommerce product.
-		$product = wc_get_product( $productId );
+		$product = wc_get_product( $product_id );
 
 		// Initialize the return value.
 		$retval = false;
@@ -77,12 +79,12 @@ if ( ! function_exists( 'isS3Path' ) ) {
 
 			// If a specific download ID is provided, use it to get the file URL.
 			$path = null;
-			if ( $downloadId !== null && isset( $downloads[ $downloadId ] ) ) {
-				$path = trim( $downloads[ $downloadId ]->get_file() );
+			if ( $download_id !== null && isset( $downloads[ $download_id ] ) ) {
+				$path = trim( $downloads[ $download_id ]->get_file() );
 			}
 
 			// Validate whether the file URL corresponds to an S3 path.
-			if ( ! empty( $path ) && isValidPath( $path, $defaultBucket, $allowedExtensions, $disallowedProtocols, $errorCallback ) ) {
+			if ( ! empty( $path ) && is_valid_s3_path( $path, $default_bucket, $allowed_extensions, $disallowed_protocols, $error_callback ) ) {
 				$retval = true;
 			}
 		}

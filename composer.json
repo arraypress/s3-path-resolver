@@ -10,10 +10,13 @@
       "homepage": "https://arraypress.com/"
     }
   ],
-  "minimum-stability": "stable",
   "require": {
     "php": "^7.4 || ^8.0",
     "arraypress/s3-utilities": "*"
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "sort-packages": true
   },
   "autoload": {
     "psr-4": {
@@ -21,8 +24,10 @@
     },
     "files": [
       "src/Functions.php",
-      "helpers/EDD.php",
-      "helpers/WC.php"
+      "utilities/EDD.php",
+      "utilities/WC.php"
     ]
-  }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
 }

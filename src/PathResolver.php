@@ -30,6 +30,17 @@ namespace ArrayPress\S3;
 
 use Exception;
 use InvalidArgumentException;
+use function array_shift;
+use function array_unique;
+use function count;
+use function explode;
+use function implode;
+use function in_array;
+use function ltrim;
+use function pathinfo;
+use function strpos;
+use function trim;
+use const PATHINFO_EXTENSION;
 
 /**
  * Manages S3 providers and offers utilities for interacting with them and their regions.
