@@ -142,7 +142,7 @@ try {
 
 ```php
 $resolver = new PathResolver();
-$pathInfo = $resolver->parsePath('/mybucket/folder1/folder2/myfile.zip');
+$pathInfo = $resolver->parsePath( '/mybucket/folder1/folder2/myfile.zip' );
 
 echo "Bucket: " . $pathInfo->bucket; // Outputs: mybucket
 echo "Object Key: " . $pathInfo->objectKey; // Outputs: folder1/folder2/myfile.zip
