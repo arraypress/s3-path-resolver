@@ -14,7 +14,7 @@ declare( strict_types=1 );
 namespace ArrayPress\S3\EDD;
 
 use Exception;
-use function ArrayPress\S3\is_valid_s3_path;
+use function ArrayPress\S3\PathResolver\is_valid_s3_path;
 use function function_exists;
 use function trim;
 
