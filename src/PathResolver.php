@@ -26,8 +26,10 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\S3;
+namespace ArrayPress\S3\PathResolver;
 
+use ArrayPress\S3\Utils\Sanitize;
+use ArrayPress\S3\Utils\Validate;
 use Exception;
 use InvalidArgumentException;
 use function array_shift;

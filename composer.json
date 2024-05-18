@@ -20,7 +20,7 @@
   },
   "autoload": {
     "psr-4": {
-      "ArrayPress\\S3\\": "src/"
+      "ArrayPress\\S3\\PathResolver\\": "src/"
     },
     "files": [
       "src/Functions.php",

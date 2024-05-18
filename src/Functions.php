@@ -24,7 +24,7 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\S3;
+namespace ArrayPress\S3\PathResolver;
 
 use Exception;
 use function call_user_func;
